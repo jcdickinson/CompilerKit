@@ -1,4 +1,6 @@
 language: csharp
+mono:
+  - latest
 solution: CompilerKit.sln
 install:
   - nuget restore CompilerKit.sln
