@@ -1,0 +1,8 @@
+language: csharp
+solution: CompilerKit.sln
+install:
+  - nuget restore solution-name.sln
+  - nuget install xunit.runner.console -Version 2.2.0-beta1-build3239 -OutputDirectory testrunner
+ script:
+  - xbuild /p:Configuration=Release solution-name.sln
+  - mono ./testrunner/xunit.runner.console.2.2.0-beta1-build3239/tools/xunit.console.exe ./build/tests/CompilerKit.Emit.Tests.dll
