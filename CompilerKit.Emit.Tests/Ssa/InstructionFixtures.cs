@@ -165,17 +165,20 @@ namespace CompilerKit.Emit.Ssa
             body.Add(add);
             body.Add(ret);
 
-            var ab = AppDomain.CurrentDomain.DefineDynamicAssembly(new AssemblyName("Jono.Test"), AssemblyBuilderAccess.RunAndSave);
-            var mb = ab.DefineDynamicModule("CompilerKit.Test", "CompilerKit.Test.dll");
+            var ab = AppDomain.CurrentDomain.DefineDynamicAssembly(new AssemblyName("CompilerKit.TestOutput"), AssemblyBuilderAccess.RunAndSave);
+            var mb = ab.DefineDynamicModule("CompilerKit.TestOutput", "CompilerKit.TestOutput.dll");
             var tb = mb.DefineType("CompilerKit.Test.Class", TypeAttributes.Public | TypeAttributes.BeforeFieldInit | TypeAttributes.Serializable | TypeAttributes.Sealed, typeof(object));
             var tm = tb.DefineMethod("TestMethod", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Static,
                 returnType, new[] { xT, yT });
 
             var il = tm.GetILGenerator();
+            body.Optimize(StackOptimizer.Optimize);
             body.CompileTo(il);
 
             var finalType = tb.CreateType();
             var finalMethod = finalType.GetMethod(tm.Name, BindingFlags.Public | BindingFlags.Static);
+
+            ab.Save("CompilerKit.TestOutput.dll");
 
             var minX = GetValue(xT, "Min");
             var maxX = GetValue(xT, "Max");

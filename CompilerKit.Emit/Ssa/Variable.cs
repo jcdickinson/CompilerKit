@@ -59,6 +59,14 @@ namespace CompilerKit.Emit.Ssa
         public Type Type { get { return RootVariable.Type; } }
 
         /// <summary>
+        /// Gets or sets the <see cref="VariableOptions"/>.
+        /// </summary>
+        /// <value>
+        /// The <see cref="VariableOptions"/>.
+        /// </value>
+        public VariableOptions Options { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Variable" /> class.
         /// </summary>
         /// <param name="rootVariable">The root variable.</param>

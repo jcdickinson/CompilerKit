@@ -54,7 +54,9 @@
     <Compile Include="Ssa\IRootVariableCollection.cs" />
     <Compile Include="Ssa\ReturnInstruction.cs" />
     <Compile Include="Ssa\RootVariable.cs" />
+    <Compile Include="Ssa\StackOptimizer.cs" />
     <Compile Include="Ssa\Variable.cs" />
+    <Compile Include="Ssa\VariableOptions.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

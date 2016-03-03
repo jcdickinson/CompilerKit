@@ -19,14 +19,13 @@ namespace CompilerKit.Emit.Ssa
         /// </value>
         public IRootVariableCollection Parameters { get; }
 
-        private readonly RootVariableCollection _variables;
         /// <summary>
         /// Gets the list of variables.
         /// </summary>
         /// <value>
         /// The list of variables.
         /// </value>
-        public IRootVariableCollection Variables { get { return _variables; } }
+        public IRootVariableCollection Variables { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Body"/> class.
@@ -45,7 +44,7 @@ namespace CompilerKit.Emit.Ssa
             : base(list)
         {
             Parameters = new RootVariableCollection("p", true);
-            _variables = new RootVariableCollection("v", false);
+            Variables = new RootVariableCollection("v", false);
         }
 
         /// <summary>
@@ -62,6 +61,7 @@ namespace CompilerKit.Emit.Ssa
             if (item.Body != null && !ReferenceEquals(item.Body, this))
                 throw new ArgumentOutOfRangeException(nameof(item), Properties.Resources.InvalidOperation_InstructionParented);
             item.Body = this;
+            item.Index = index;
             base.InsertItem(index, item);
         }
 
@@ -79,7 +79,9 @@ namespace CompilerKit.Emit.Ssa
             if (item.Body != null && !ReferenceEquals(item.Body, this))
                 throw new ArgumentOutOfRangeException(nameof(item), Properties.Resources.InvalidOperation_InstructionParented);
             this[index].Body = null;
+            this[index].Index = -1;
             item.Body = this;
+            item.Index = index;
             base.SetItem(index, item);
         }
 
@@ -89,7 +91,10 @@ namespace CompilerKit.Emit.Ssa
         protected override void ClearItems()
         {
             foreach (var item in this)
+            {
                 item.Body = null;
+                item.Index = -1;
+            }
             base.ClearItems();
         }
 
@@ -100,6 +105,7 @@ namespace CompilerKit.Emit.Ssa
         protected override void RemoveItem(int index)
         {
             this[index].Body = null;
+            this[index].Index = -1;
             base.RemoveItem(index);
         }
 
@@ -109,7 +115,7 @@ namespace CompilerKit.Emit.Ssa
         /// <param name="il">The <see cref="ILGenerator"/> to compile to.</param>
         public void CompileTo(ILGenerator il)
         {
-            foreach (var variable in ((IEnumerable<RootVariable>)_variables).SelectMany(x => x.Variables))
+            foreach (var variable in ((IEnumerable<RootVariable>)Variables).SelectMany(x => x.Variables))
             {
                 il.DeclareLocal(variable.Type);
             }
@@ -117,6 +123,29 @@ namespace CompilerKit.Emit.Ssa
             foreach (var instruction in this)
             {
                 instruction.CompileTo(il);
+            }
+        }
+
+        /// <summary>
+        /// Optimizes the method body with the specified optimizers.
+        /// </summary>
+        /// <param name="optimizers">The optimizers to optimize the method body with.</param>
+        public void Optimize(params Action<Body>[] optimizers)
+        {
+            Optimize((IEnumerable<Action<Body>>)optimizers);
+        }
+
+        /// <summary>
+        /// Optimizes the method body with the specified optimizers.
+        /// </summary>
+        /// <param name="optimizers">The optimizers to optimize the method body with.</param>
+        public void Optimize(IEnumerable<Action<Body>> optimizers)
+        {
+            if (optimizers == null) throw new ArgumentNullException(nameof(optimizers));
+            foreach (var optimizer in optimizers)
+            {
+                if (optimizer == null) throw new ArgumentNullException(nameof(optimizers));
+                optimizer(this);
             }
         }
     }
