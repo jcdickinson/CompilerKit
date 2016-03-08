@@ -43,7 +43,7 @@ namespace CompilerKit.Emit.Ssa
                 typeof(float).TypeHandle,
                 typeof(double).TypeHandle,
                 typeof(decimal).TypeHandle,
-    };
+        };
 
         /// <summary>
         /// Gets the list of input variables.

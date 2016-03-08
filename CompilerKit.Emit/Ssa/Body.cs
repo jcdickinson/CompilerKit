@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection.Emit;
 
@@ -9,7 +9,7 @@ namespace CompilerKit.Emit.Ssa
     /// <summary>
     /// Represents a method body that comprises of variables and instructions.
     /// </summary>
-    public partial class Body : Collection<Instruction>
+    public partial class Body : IReadOnlyList<Block>
     {
         /// <summary>
         /// Gets the list of parameter variables.
@@ -28,85 +28,45 @@ namespace CompilerKit.Emit.Ssa
         public IRootVariableCollection Variables { get; }
 
         /// <summary>
+        /// Gets the number of elements in the collection.
+        /// </summary>
+        public int Count => _blocks.Count;
+
+        /// <summary>
+        /// Gets the <see cref="Block"/> at the specified index.
+        /// </summary>
+        /// <value>
+        /// The <see cref="Block"/>.
+        /// </value>
+        /// <param name="index">The index of the see cref="Block"/> to get.</param>
+        /// <returns>The <see cref="Block"/> at the specified index.</returns>
+        /// <summary>
+        /// Gets the <see cref="Block"/> at the specified index.
+        /// </summary>
+        /// <value>
+        /// The <see cref="Block"/>.
+        /// </value>
+        /// <param name="index">The index.</param>
+        /// <returns></returns>
+        public Block this[int index] => _blocks[index];
+
+        /// <summary>
+        /// Gets the main <see cref="Block"/> that contains the initial instructions contained
+        /// by the method.
+        /// </summary>
+        public Block MainBlock => _blocks[0];
+
+        private readonly IList<Block> _blocks;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Body"/> class.
         /// </summary>
         public Body()
-             : this(new List<Instruction>())
-        {
-
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Body"/> class.
-        /// </summary>
-        /// <param name="list">The list of existing instructions.</param>
-        public Body(IList<Instruction> list)
-            : base(list)
         {
             Parameters = new RootVariableCollection("p", true);
             Variables = new RootVariableCollection("v", false);
-        }
-
-        /// <summary>
-        /// Inserts an element into the <see cref="T:System.Collections.ObjectModel.Collection`1" /> at the specified index.
-        /// </summary>
-        /// <param name="index">The zero-based index at which <paramref name="item" /> should be inserted.</param>
-        /// <param name="item">The object to insert. The value can be null for reference types.</param>
-        /// <exception cref="System.ArgumentNullException"></exception>
-        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
-        protected override void InsertItem(int index, Instruction item)
-        {
-            if (item == null)
-                throw new ArgumentNullException(nameof(item));
-            if (item.Body != null && !ReferenceEquals(item.Body, this))
-                throw new ArgumentOutOfRangeException(nameof(item), Properties.Resources.InvalidOperation_InstructionParented);
-            item.Body = this;
-            item.Index = index;
-            base.InsertItem(index, item);
-        }
-
-        /// <summary>
-        /// Replaces the element at the specified index.
-        /// </summary>
-        /// <param name="index">The zero-based index of the element to replace.</param>
-        /// <param name="item">The new value for the element at the specified index. The value can be null for reference types.</param>
-        /// <exception cref="System.ArgumentNullException"></exception>
-        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
-        protected override void SetItem(int index, Instruction item)
-        {
-            if (item == null)
-                throw new ArgumentNullException(nameof(item));
-            if (item.Body != null && !ReferenceEquals(item.Body, this))
-                throw new ArgumentOutOfRangeException(nameof(item), Properties.Resources.InvalidOperation_InstructionParented);
-            this[index].Body = null;
-            this[index].Index = -1;
-            item.Body = this;
-            item.Index = index;
-            base.SetItem(index, item);
-        }
-
-        /// <summary>
-        /// Removes all elements from the <see cref="T:System.Collections.ObjectModel.Collection`1" />.
-        /// </summary>
-        protected override void ClearItems()
-        {
-            foreach (var item in this)
-            {
-                item.Body = null;
-                item.Index = -1;
-            }
-            base.ClearItems();
-        }
-
-        /// <summary>
-        /// Removes the element at the specified index of the <see cref="T:System.Collections.ObjectModel.Collection`1" />.
-        /// </summary>
-        /// <param name="index">The zero-based index of the element to remove.</param>
-        protected override void RemoveItem(int index)
-        {
-            this[index].Body = null;
-            this[index].Index = -1;
-            base.RemoveItem(index);
+            _blocks = new List<Block>();
+            _blocks.Add(new Block(this));
         }
 
         /// <summary>
@@ -120,7 +80,7 @@ namespace CompilerKit.Emit.Ssa
                 il.DeclareLocal(variable.Type);
             }
 
-            foreach (var instruction in this)
+            foreach (var instruction in MainBlock)
             {
                 instruction.CompileTo(il);
             }
@@ -147,6 +107,28 @@ namespace CompilerKit.Emit.Ssa
                 if (optimizer == null) throw new ArgumentNullException(nameof(optimizers));
                 optimizer(this);
             }
+        }
+
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>
+        /// An enumerator that can be used to iterate through the collection.
+        /// </returns>
+        public IEnumerator<Block> GetEnumerator()
+        {
+            return _blocks.GetEnumerator();
+        }
+
+        /// <summary>
+        /// Returns an enumerator that iterates through a collection.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="T:System.Collections.IEnumerator" /> object that can be used to iterate through the collection.
+        /// </returns>
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

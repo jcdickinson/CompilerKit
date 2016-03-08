@@ -123,11 +123,8 @@
   <data name="ArgumentOutOfRange_NumericTypeExpected" xml:space="preserve">
     <value>A numeric type was expected.</value>
   </data>
-  <data name="Format_Variable" xml:space="preserve">
-    <value>{0}_{1}</value>
-  </data>
   <data name="InvalidOperation_InstructionParented" xml:space="preserve">
-    <value>The instruction is already parented by another body.</value>
+    <value>The instruction is already parented by another block.</value>
   </data>
   <data name="InvalidOperation_VariableAssigned" xml:space="preserve">
     <value>The variable {0} has already been assigned by another instruction.</value>

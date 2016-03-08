@@ -47,6 +47,7 @@
     </Compile>
     <Compile Include="Ssa\BinaryOperator.cs" />
     <Compile Include="Ssa\BinaryOperatorInstruction.cs" />
+    <Compile Include="Ssa\Block.cs" />
     <Compile Include="Ssa\Body.cs" />
     <Compile Include="Ssa\Body.RootVariableCollection.cs" />
     <Compile Include="Ssa\SsaExtensions.cs" />
@@ -54,7 +55,6 @@
     <Compile Include="Ssa\IRootVariableCollection.cs" />
     <Compile Include="Ssa\ReturnInstruction.cs" />
     <Compile Include="Ssa\RootVariable.cs" />
-    <Compile Include="Ssa\StackOptimizer.cs" />
     <Compile Include="Ssa\Variable.cs" />
     <Compile Include="Ssa\VariableOptions.cs" />
   </ItemGroup>

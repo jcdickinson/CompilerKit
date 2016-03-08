@@ -162,8 +162,8 @@ namespace CompilerKit.Emit.Ssa
             var add = new BinaryOperatorInstruction(result.NextVariable(), x.NextVariable(), op, y.NextVariable());
             var ret = new ReturnInstruction(add.Output);
 
-            body.Add(add);
-            body.Add(ret);
+            body.MainBlock.Add(add);
+            body.MainBlock.Add(ret);
 
             var ab = AppDomain.CurrentDomain.DefineDynamicAssembly(new AssemblyName("CompilerKit.TestOutput"), AssemblyBuilderAccess.RunAndSave);
             var mb = ab.DefineDynamicModule("CompilerKit.TestOutput", "CompilerKit.TestOutput.dll");
@@ -172,7 +172,6 @@ namespace CompilerKit.Emit.Ssa
                 returnType, new[] { xT, yT });
 
             var il = tm.GetILGenerator();
-            body.Optimize(StackOptimizer.Optimize);
             body.CompileTo(il);
 
             var finalType = tb.CreateType();

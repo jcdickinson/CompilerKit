@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Reflection.Emit;
 
@@ -28,28 +27,12 @@ namespace CompilerKit.Emit.Ssa
         public abstract IReadOnlyList<Variable> OutputVariables { get; }
 
         /// <summary>
-        /// Gets the body that the instruction belongs to.
+        /// Gets the block that the instruction belongs to.
         /// </summary>
         /// <value>
-        /// The body that the instruction belongs to.
+        /// The block that the instruction belongs to.
         /// </value>
-        public Body Body { get; internal set; }
-
-        /// <summary>
-        /// Gets the list of locations where jumps may land.
-        /// </summary>
-        /// <value>
-        /// The list of locations where jumps may land.
-        /// </value>
-        public IReadOnlyList<Instruction> JumpsTo { get; }
-
-        /// <summary>
-        /// Gets the list of locations where jumps originate to this instruction.
-        /// </summary>
-        /// <value>
-        /// The  list of locations where jumps originate to this instruction.
-        /// </value>
-        public IReadOnlyList<Instruction> JumpsFrom { get; }
+        public Block Block { get; internal set; }
 
         /// <summary>
         /// Gets the index of the instruction as it appears in a body.
@@ -59,23 +42,12 @@ namespace CompilerKit.Emit.Ssa
         /// </value>
         public int Index { get; internal set; }
 
-        private readonly List<Instruction> _jumpsTo;
-        private readonly List<Instruction> _jumpsFrom;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="Instruction"/> class.
         /// </summary>
         protected Instruction()
         {
-            JumpsTo = new ReadOnlyCollection<Instruction>(_jumpsTo = new List<Instruction>(2));
-            JumpsFrom = new ReadOnlyCollection<Instruction>(_jumpsFrom = new List<Instruction>(2));
             Index = -1;
-        }
-
-        protected void JumpTo(Instruction instruction)
-        {
-            instruction._jumpsFrom.Add(this);
-            _jumpsTo.Add(instruction);
         }
 
         /// <summary>
@@ -100,9 +72,7 @@ namespace CompilerKit.Emit.Ssa
 
         protected void EmitStore(ILGenerator il, Variable variable)
         {
-            // NB: basically means *only* StackCandidate
-            if (((variable.Options ^ VariableOptions.StackProhibited) & VariableOptions.StackOperations) ==
-                VariableOptions.StackOperations)
+            if ((variable.Options & VariableOptions.StackOperations) == VariableOptions.StackCandidate)
             {
 
             }
@@ -112,7 +82,7 @@ namespace CompilerKit.Emit.Ssa
             }
             else
             {
-                var index = Body.Variables.IndexOf(variable);
+                var index = Block.Variables.IndexOf(variable);
                 switch (index)
                 {
                     case 0: il.Emit(OpCodes.Stloc_0); break;
@@ -138,7 +108,7 @@ namespace CompilerKit.Emit.Ssa
             }
             else if (variable.IsParameter)
             {
-                var index = Body.Parameters.IndexOf(variable);
+                var index = Block.Parameters.IndexOf(variable);
                 switch (index)
                 {
                     case 0: il.Emit(OpCodes.Ldarg_0); break;
@@ -155,7 +125,7 @@ namespace CompilerKit.Emit.Ssa
             }
             else
             {
-                var index = Body.Variables.IndexOf(variable);
+                var index = Block.Variables.IndexOf(variable);
                 switch (index)
                 {
                     case 0: il.Emit(OpCodes.Ldloc_0); break;

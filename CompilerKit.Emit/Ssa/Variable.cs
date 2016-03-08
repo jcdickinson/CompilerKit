@@ -155,7 +155,8 @@ namespace CompilerKit.Emit.Ssa
         /// </returns>
         public override string ToString()
         {
-            return string.Format(CultureInfo.CurrentCulture, Properties.Resources.Format_Variable, RootVariable, Subscript);
+            const string VariableFormat = "{0}_{1}";
+            return string.Format(CultureInfo.CurrentCulture, VariableFormat, RootVariable, Subscript);
         }
     }
 }

@@ -79,16 +79,7 @@ namespace CompilerKit.Emit.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0}_{1}.
-        /// </summary>
-        internal static string Format_Variable {
-            get {
-                return ResourceManager.GetString("Format_Variable", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The instruction is already parented by another body..
+        ///   Looks up a localized string similar to The instruction is already parented by another block..
         /// </summary>
         internal static string InvalidOperation_InstructionParented {
             get {

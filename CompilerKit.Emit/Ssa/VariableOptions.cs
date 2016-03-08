@@ -23,6 +23,6 @@ namespace CompilerKit.Emit.Ssa
         /// <summary>
         /// The stack operations
         /// </summary>
-        StackOperations = StackCandidate | VariableOptions.StackProhibited
+        StackOperations = StackCandidate | StackProhibited
     }
 }
