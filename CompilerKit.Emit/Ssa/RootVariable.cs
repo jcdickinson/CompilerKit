@@ -44,18 +44,27 @@ namespace CompilerKit.Emit.Ssa
         /// </value>
         public Type Type { get; }
 
+        /// <summary>
+        /// Gets the index of this variable within its collection.
+        /// </summary>
+        /// <value>
+        /// The index of this variable within its collection.
+        /// </value>
+        public int Index { get; }
+
         private readonly List<Variable> _variables;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RootVariable"/> class.
         /// </summary>
-        internal RootVariable(string name, Type type, bool isParameter)
+        internal RootVariable(string name, Type type, bool isParameter, int index)
         {
             Name = name;
             _variables = new List<Variable>();
             Variables = new ReadOnlyCollection<Variable>(_variables);
             IsParameter = isParameter;
             Type = type;
+            Index = index;
         }
 
         /// <summary>

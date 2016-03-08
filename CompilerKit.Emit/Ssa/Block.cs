@@ -81,6 +81,20 @@ namespace CompilerKit.Emit.Ssa
         }
 
         /// <summary>
+        /// Compiles the method to the specified <see cref="IMethodEmitRequest" /> and
+        /// <see cref="IILGenerator" />.
+        /// </summary>
+        /// <param name="emitRequest">The emit request to compile against.</param>
+        /// <param name="il">The <see cref="IILGenerator"/> that will be populated with the final code.</param>
+        public virtual void CompileTo(IMethodEmitRequest emitRequest, IILGenerator il)
+        {
+            foreach (var instruction in this)
+            {
+                instruction.CompileTo(emitRequest, il);
+            }
+        }
+
+        /// <summary>
         /// Removes all elements from the <see cref="T:System.Collections.ObjectModel.Collection`1" />.
         /// </summary>
         protected override void ClearItems()

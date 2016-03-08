@@ -50,6 +50,15 @@
     <Compile Include="Ssa\Block.cs" />
     <Compile Include="Ssa\Body.cs" />
     <Compile Include="Ssa\Body.RootVariableCollection.cs" />
+    <Compile Include="Ssa\BranchCompareInstruction.cs" />
+    <Compile Include="Ssa\Comparison.cs" />
+    <Compile Include="Ssa\BranchInstruction.cs" />
+    <Compile Include="Ssa\DefaultILGenerator.cs" />
+    <Compile Include="Ssa\EmitOptions.cs" />
+    <Compile Include="Ssa\DefaultMethodEmitRequest.cs" />
+    <Compile Include="Ssa\IMethodEmitRequest.cs" />
+    <Compile Include="Ssa\IILGenerator.cs" />
+    <Compile Include="Ssa\ILabel.cs" />
     <Compile Include="Ssa\SsaExtensions.cs" />
     <Compile Include="Ssa\Instruction.cs" />
     <Compile Include="Ssa\IRootVariableCollection.cs" />

@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Emit;
 
 namespace CompilerKit.Emit.Ssa
 {
@@ -70,19 +69,26 @@ namespace CompilerKit.Emit.Ssa
         }
 
         /// <summary>
-        /// Compiles the method to the specified <see cref="ILGenerator"/>.
+        /// Compiles the method to the specified <see cref="IMethodEmitRequest" />.
         /// </summary>
-        /// <param name="il">The <see cref="ILGenerator"/> to compile to.</param>
-        public void CompileTo(ILGenerator il)
+        /// <param name="emitRequest">The emit request to compile against.</param>
+        public void CompileTo(IMethodEmitRequest emitRequest)
         {
-            foreach (var variable in ((IEnumerable<RootVariable>)Variables).SelectMany(x => x.Variables))
+            var il = emitRequest.CreateILGenerator();
+
+            foreach (var block in _blocks)
             {
-                il.DeclareLocal(variable.Type);
+                il.Declare(block);
             }
 
-            foreach (var instruction in MainBlock)
+            foreach (var variable in ((IEnumerable<RootVariable>)Variables).SelectMany(x => x.Variables))
             {
-                instruction.CompileTo(il);
+                il.Declare(variable);
+            }
+
+            foreach (var block in _blocks)
+            {
+                block.CompileTo(emitRequest, il);
             }
         }
 

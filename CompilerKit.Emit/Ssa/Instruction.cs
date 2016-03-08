@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Reflection.Emit;
 
 namespace CompilerKit.Emit.Ssa
 {
@@ -65,81 +64,10 @@ namespace CompilerKit.Emit.Ssa
         }
 
         /// <summary>
-        /// Compiles the method to the specified <see cref="ILGenerator"/>.
+        /// Compiles the method to the specified <see cref="ILGenerator" />.
         /// </summary>
-        /// <param name="il">The <see cref="ILGenerator"/> to compile to.</param>
-        public abstract void CompileTo(ILGenerator il);
-
-        protected void EmitStore(ILGenerator il, Variable variable)
-        {
-            if ((variable.Options & VariableOptions.StackOperations) == VariableOptions.StackCandidate)
-            {
-
-            }
-            else if (variable.IsParameter)
-            {
-                throw new NotSupportedException();
-            }
-            else
-            {
-                var index = Block.Variables.IndexOf(variable);
-                switch (index)
-                {
-                    case 0: il.Emit(OpCodes.Stloc_0); break;
-                    case 1: il.Emit(OpCodes.Stloc_1); break;
-                    case 2: il.Emit(OpCodes.Stloc_2); break;
-                    case 3: il.Emit(OpCodes.Stloc_3); break;
-                    default:
-                        if (index < 255)
-                            il.Emit(OpCodes.Stloc_S, (byte)index);
-                        else
-                            il.Emit(OpCodes.Stloc, index);
-                        break;
-                }
-            }
-        }
-
-        protected void EmitLoad(ILGenerator il, Variable variable)
-        {
-            if (((variable.Options ^ VariableOptions.StackProhibited) & VariableOptions.StackOperations) ==
-                VariableOptions.StackOperations)
-            {
-
-            }
-            else if (variable.IsParameter)
-            {
-                var index = Block.Parameters.IndexOf(variable);
-                switch (index)
-                {
-                    case 0: il.Emit(OpCodes.Ldarg_0); break;
-                    case 1: il.Emit(OpCodes.Ldarg_1); break;
-                    case 2: il.Emit(OpCodes.Ldarg_2); break;
-                    case 3: il.Emit(OpCodes.Ldarg_3); break;
-                    default:
-                        if (index < 255)
-                            il.Emit(OpCodes.Ldarg_S, (byte)index);
-                        else
-                            il.Emit(OpCodes.Ldarg, index);
-                        break;
-                }
-            }
-            else
-            {
-                var index = Block.Variables.IndexOf(variable);
-                switch (index)
-                {
-                    case 0: il.Emit(OpCodes.Ldloc_0); break;
-                    case 1: il.Emit(OpCodes.Ldloc_1); break;
-                    case 2: il.Emit(OpCodes.Ldloc_2); break;
-                    case 3: il.Emit(OpCodes.Ldloc_3); break;
-                    default:
-                        if (index < 255)
-                            il.Emit(OpCodes.Ldloc_S, (byte)index);
-                        else
-                            il.Emit(OpCodes.Ldloc, index);
-                        break;
-                }
-            }
-        }
+        /// <param name="emitRequest">The emit request.</param>
+        /// <param name="il">The <see cref="ILGenerator" /> to compile to.</param>
+        public abstract void CompileTo(IMethodEmitRequest emitRequest, IILGenerator il);
     }
 }

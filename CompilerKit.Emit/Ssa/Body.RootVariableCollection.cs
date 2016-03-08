@@ -53,7 +53,7 @@ namespace CompilerKit.Emit.Ssa
             public RootVariable Add(Type type, string name)
             {
                 if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
-                var variable = new RootVariable(name, type, _isParameters);
+                var variable = new RootVariable(name, type, _isParameters, _dictionary.Count);
                 _dictionary.Add(name, variable);
                 _order.Add(variable);
                 return variable;

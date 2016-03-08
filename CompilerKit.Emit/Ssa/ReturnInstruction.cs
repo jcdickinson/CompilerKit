@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Reflection.Emit;
 
 namespace CompilerKit.Emit.Ssa
 {
@@ -60,11 +59,11 @@ namespace CompilerKit.Emit.Ssa
         /// Compiles the method to the specified <see cref="ILGenerator" />.
         /// </summary>
         /// <param name="il">The <see cref="ILGenerator" /> to compile to.</param>
-        public override void CompileTo(ILGenerator il)
+        public override void CompileTo(IMethodEmitRequest emitRequest, IILGenerator il)
         {
-            if (ReturnValue != null)
-                EmitLoad(il, ReturnValue);
-            il.Emit(OpCodes.Ret);
+            if (ReturnValue != null && !ReturnValue.StoreOnStack)
+                il.Load(ReturnValue, EmitOptions.None);
+            il.Return();
         }
     }
 }

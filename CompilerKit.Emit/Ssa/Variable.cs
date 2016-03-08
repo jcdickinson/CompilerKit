@@ -67,6 +67,27 @@ namespace CompilerKit.Emit.Ssa
         public VariableOptions Options { get; set; }
 
         /// <summary>
+        /// Gets a value indicating whether this variable can be placed on the stack.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this variable can be placed on the stack; otherwise, <c>false</c>.
+        /// </value>
+        public bool StoreOnStack
+        {
+            get
+            {
+                // First remove all other flags.
+                var stackOnly = Options & VariableOptions.StackOperations;
+
+                // Flip the bit that signifies prohibition.
+                var invertProhibited = Options & VariableOptions.StackProhibited;
+
+                // Now both values will be true if it is allowed.
+                return invertProhibited == VariableOptions.StackOperations;
+            }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Variable" /> class.
         /// </summary>
         /// <param name="rootVariable">The root variable.</param>

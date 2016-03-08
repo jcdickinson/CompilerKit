@@ -159,7 +159,10 @@ namespace CompilerKit.Emit.Ssa
             var y = body.Parameters.Add(yT, "y");
             var result = body.Variables.Add(returnType, "result");
 
-            var add = new BinaryOperatorInstruction(result.NextVariable(), x.NextVariable(), op, y.NextVariable());
+            var add = new BinaryOperatorInstruction(result.NextVariable(), x.NextVariable(), op, y.NextVariable())
+            {
+                Checked = false
+            };
             var ret = new ReturnInstruction(add.Output);
 
             body.MainBlock.Add(add);
@@ -171,8 +174,8 @@ namespace CompilerKit.Emit.Ssa
             var tm = tb.DefineMethod("TestMethod", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Static,
                 returnType, new[] { xT, yT });
 
-            var il = tm.GetILGenerator();
-            body.CompileTo(il);
+            var request = new DefaultMethodEmitRequest(tm);
+            body.CompileTo(request);
 
             var finalType = tb.CreateType();
             var finalMethod = finalType.GetMethod(tm.Name, BindingFlags.Public | BindingFlags.Static);

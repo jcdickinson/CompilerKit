@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using System.Reflection.Emit;
 
 namespace CompilerKit.Emit.Ssa
 {
@@ -94,6 +93,22 @@ namespace CompilerKit.Emit.Ssa
         public Variable Right { get; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to perform an overflow check.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if an overflow check should be performed; otherwise, <c>false</c>.
+        /// </value>
+        public bool Checked { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="BinaryOperatorInstruction"/> is ordered.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if ordered; otherwise, <c>false</c>.
+        /// </value>
+        public bool Ordered { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="BinaryOperatorInstruction" /> class.
         /// </summary>
         /// <param name="output">The root variable from which the output variable will be created.</param>
@@ -118,66 +133,26 @@ namespace CompilerKit.Emit.Ssa
 
             InputVariables = new ReadOnlyCollection<Variable>(new[] { Left, Right });
             OutputVariables = new ReadOnlyCollection<Variable>(new[] { Output });
+
+            Checked = true;
+            Ordered = true;
         }
 
         /// <summary>
         /// Compiles the method to the specified <see cref="ILGenerator" />.
         /// </summary>
+        /// <param name="emitRequest">The emit request.</param>
         /// <param name="il">The <see cref="ILGenerator" /> to compile to.</param>
-        public override void CompileTo(ILGenerator il)
+        public override void CompileTo(IMethodEmitRequest emitRequest, IILGenerator il)
         {
-            EmitLoad(il, Left);
-            EmitLoad(il, Right);
-            switch (BinaryOperator)
-            {
-                case BinaryOperator.Add: il.Emit(OpCodes.Add); break;
-                case BinaryOperator.Subtract: il.Emit(OpCodes.Sub); break;
-                case BinaryOperator.Multiply: il.Emit(OpCodes.Mul); break;
-                case BinaryOperator.Divide: il.Emit(OpCodes.Div); break;
-                case BinaryOperator.Modulo: il.Emit(OpCodes.Rem); break;
-                case BinaryOperator.Equal: il.Emit(OpCodes.Ceq); break;
-                case BinaryOperator.NotEqual: il.Emit(OpCodes.Ceq); il.Emit(OpCodes.Ldc_I4_0); il.Emit(OpCodes.Ceq); break;
-                case BinaryOperator.LessThan:
-                    if (IsSigned(Left.Type.TypeHandle) && IsSigned(Right.Type.TypeHandle))
-                        il.Emit(OpCodes.Clt);
-                    else
-                        il.Emit(OpCodes.Clt_Un);
-                    break;
-                case BinaryOperator.LessThanOrEqual:
-                    if (IsSigned(Left.Type.TypeHandle) && IsSigned(Right.Type.TypeHandle))
-                        il.Emit(OpCodes.Cgt);
-                    else
-                        il.Emit(OpCodes.Cgt_Un);
-                    il.Emit(OpCodes.Ldc_I4_0);
-                    il.Emit(OpCodes.Ceq);
-                    break;
-                case BinaryOperator.GreaterThan:
-                    if (IsSigned(Left.Type.TypeHandle) && IsSigned(Right.Type.TypeHandle))
-                        il.Emit(OpCodes.Cgt);
-                    else
-                        il.Emit(OpCodes.Cgt_Un);
-                    break;
-                case BinaryOperator.GreaterThanOrEqual:
-                    if (IsSigned(Left.Type.TypeHandle) && IsSigned(Right.Type.TypeHandle))
-                        il.Emit(OpCodes.Clt);
-                    else
-                        il.Emit(OpCodes.Clt_Un);
-                    il.Emit(OpCodes.Ldc_I4_0);
-                    il.Emit(OpCodes.Ceq);
-                    break;
-                case BinaryOperator.LeftShift: il.Emit(OpCodes.Shl); break;
-                case BinaryOperator.RightShift:
-                    if (IsSigned(Left.Type.TypeHandle))
-                        il.Emit(OpCodes.Shr);
-                    else
-                        il.Emit(OpCodes.Shr_Un);
-                    break;
-                case BinaryOperator.And: il.Emit(OpCodes.And); break;
-                case BinaryOperator.Or: il.Emit(OpCodes.Or); break;
-                case BinaryOperator.ExclusiveOr: il.Emit(OpCodes.Xor); break;
-                default: throw new NotSupportedException();
-            }
-            EmitStore(il, Output);
+            il.Load(Left, EmitOptions.None);
+            il.Load(Right, EmitOptions.None);
+
+            var options = Checked ? EmitOptions.Checked : EmitOptions.None;
+            if (!Ordered || (IsSigned(Left.Type.TypeHandle) && IsSigned(Right.Type.TypeHandle))) options |= EmitOptions.SignedOrOrdered;
+
+            il.Binary(BinaryOperator, options);
+            il.Store(Output, EmitOptions.None);
         }
 
         private static Type GetBinaryOperatorResult(Type left, BinaryOperator binaryOperator, Type right)
