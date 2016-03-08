@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 
@@ -10,6 +11,41 @@ namespace CompilerKit.Emit.Ssa
     [DebuggerDisplay("{RootVariable}_{Subscript}")]
     public sealed class Variable : IEquatable<Variable>
     {
+        private static readonly HashSet<RuntimeTypeHandle> _realTypes = new HashSet<RuntimeTypeHandle>()
+        {
+                typeof(float).TypeHandle,
+                typeof(double).TypeHandle,
+                typeof(decimal).TypeHandle
+        };
+
+        private static readonly HashSet<RuntimeTypeHandle> _integralTyes = new HashSet<RuntimeTypeHandle>()
+        {
+                typeof(bool).TypeHandle,
+                typeof(char).TypeHandle,
+                typeof(sbyte).TypeHandle,
+                typeof(short).TypeHandle,
+                typeof(int).TypeHandle,
+                typeof(long).TypeHandle,
+
+                typeof(byte).TypeHandle,
+                typeof(ushort).TypeHandle,
+                typeof(uint).TypeHandle,
+                typeof(ulong).TypeHandle
+        };
+
+        private static readonly HashSet<RuntimeTypeHandle> _signedTypes = new HashSet<RuntimeTypeHandle>()
+        {
+                typeof(bool).TypeHandle,
+                typeof(char).TypeHandle,
+                typeof(sbyte).TypeHandle,
+                typeof(short).TypeHandle,
+                typeof(int).TypeHandle,
+                typeof(long).TypeHandle,
+                typeof(float).TypeHandle,
+                typeof(double).TypeHandle,
+                typeof(decimal).TypeHandle
+        };
+
         /// <summary>
         /// Gets an array of variables that is empty.
         /// </summary>
@@ -86,6 +122,30 @@ namespace CompilerKit.Emit.Ssa
                 return invertProhibited == VariableOptions.StackOperations;
             }
         }
+
+        /// <summary>
+        /// Gets a value indicating whether this variable's type is integral.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this variable's type is integral; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsIntegral { get { return _integralTyes.Contains(Type.TypeHandle); } }
+
+        /// <summary>
+        /// Gets a value indicating whether this variable's type is real.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this variable's type is real; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsReal { get { return _realTypes.Contains(Type.TypeHandle); } }
+
+        /// <summary>
+        /// Gets a value indicating whether this variable's type is signed.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if the type is signed; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsSigned { get { return _signedTypes.Contains(Type.TypeHandle); } }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Variable" /> class.

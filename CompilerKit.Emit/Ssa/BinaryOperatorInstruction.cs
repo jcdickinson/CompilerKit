@@ -31,19 +31,6 @@ namespace CompilerKit.Emit.Ssa
             { Tuple.Create(BinaryOperator.And, typeof(long).TypeHandle, typeof(long).TypeHandle), typeof(long) },
         };
 
-        private static readonly HashSet<RuntimeTypeHandle> _signedTypes = new HashSet<RuntimeTypeHandle>()
-        {
-                typeof(bool).TypeHandle,
-                typeof(char).TypeHandle,
-                typeof(sbyte).TypeHandle,
-                typeof(short).TypeHandle,
-                typeof(int).TypeHandle,
-                typeof(long).TypeHandle,
-                typeof(float).TypeHandle,
-                typeof(double).TypeHandle,
-                typeof(decimal).TypeHandle,
-        };
-
         /// <summary>
         /// Gets the list of input variables.
         /// </summary>
@@ -149,7 +136,9 @@ namespace CompilerKit.Emit.Ssa
             il.Load(Right, EmitOptions.None);
 
             var options = Checked ? EmitOptions.Checked : EmitOptions.None;
-            if (!Ordered || (IsSigned(Left.Type.TypeHandle) && IsSigned(Right.Type.TypeHandle))) options |= EmitOptions.SignedOrOrdered;
+            if ((Left.IsReal && Ordered) ||
+                (Left.IsIntegral && Left.IsSigned && Right.IsSigned))
+                options |= EmitOptions.SignedOrOrdered;
 
             il.Binary(BinaryOperator, options);
             il.Store(Output, EmitOptions.None);
@@ -163,11 +152,6 @@ namespace CompilerKit.Emit.Ssa
                 throw new ArgumentOutOfRangeException(nameof(binaryOperator), string.Format(CultureInfo.CurrentCulture,
                     Properties.Resources.ArgumentOutOfRange_NoOperator, left, binaryOperator, right));
             return result;
-        }
-
-        private static bool IsSigned(RuntimeTypeHandle type)
-        {
-            return _signedTypes.Contains(type);
         }
 
         private static RuntimeTypeHandle Unpun(Type type)
