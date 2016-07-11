@@ -18,7 +18,7 @@ namespace CompilerKit.Emit.Ssa
         /// The list of destinations that the instruction
         /// may branch to.
         /// </value>
-        public sealed override IReadOnlyList<Body> Destinations { get; }
+        public sealed override IReadOnlyList<Block> Destinations { get; }
 
         /// <summary>
         /// Gets the list of input variables.
@@ -52,7 +52,7 @@ namespace CompilerKit.Emit.Ssa
         /// <value>
         /// The possible destination of the branch.
         /// </value>
-        public Body Destination { get; }
+        public Block Destination { get; }
 
         /// <summary>
         /// Gets the <see cref="Variable"/> that participates in the comparison on the left-hand side.
@@ -83,13 +83,14 @@ namespace CompilerKit.Emit.Ssa
         /// that will always branch to the specified destination.
         /// </summary>
         /// <param name="destination">The destination that will be jumped to.</param>
-        public BranchCompareInstruction(Body destination)
+        public BranchCompareInstruction(Block destination)
         {
             if (destination == null) throw new ArgumentNullException(nameof(destination));
             Destination = destination;
             Comparison = Comparison.Always;
-            Destinations = new ReadOnlyCollection<Body>(new[] { destination });
+            Destinations = new ReadOnlyCollection<Block>(new[] { destination });
             InputVariables = OutputVariables = new ReadOnlyCollection<Variable>(Variable.EmptyVariables);
+            Ordered = true;
         }
 
         /// <summary>
@@ -100,7 +101,7 @@ namespace CompilerKit.Emit.Ssa
         /// <param name="value">The single value to compare.</param>
         /// <param name="comparison">The single-valued comparison that will be made.</param>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="comparison" /> is not one of the single-valued comparisons.</exception>
-        public BranchCompareInstruction(Body destination, Variable value, Comparison comparison)
+        public BranchCompareInstruction(Block destination, Variable value, Comparison comparison)
             : this(destination)
         {
             if (value == null) throw new ArgumentNullException(nameof(value));
@@ -114,7 +115,7 @@ namespace CompilerKit.Emit.Ssa
             }
 
             Comparison = comparison;
-            Left = Right = value;
+            Left = value;
             InputVariables = new ReadOnlyCollection<Variable>(new[] { value });
         }
 
@@ -127,7 +128,7 @@ namespace CompilerKit.Emit.Ssa
         /// <param name="comparison">The dual-valued comparison that will be made.</param>
         /// <param name="right">The <see cref="Variable" /> that participates in the comparison on the right-hand side.</param>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="comparison" /> is not one of the dual-valued comparisons.</exception>
-        public BranchCompareInstruction(Body destination, Variable left, Comparison comparison, Variable right)
+        public BranchCompareInstruction(Block destination, Variable left, Comparison comparison, Variable right)
             : this(destination)
         {
             if (left == null) throw new ArgumentNullException(nameof(left));
@@ -135,9 +136,12 @@ namespace CompilerKit.Emit.Ssa
 
             switch (comparison)
             {
-                case Comparison.Always:
-                case Comparison.True:
-                case Comparison.False:
+                case Comparison.Equal:
+                case Comparison.NotEqual:
+                case Comparison.GreaterThan:
+                case Comparison.GreaterThanOrEqual:
+                case Comparison.LessThan:
+                case Comparison.LessThanOrEqual:
                     break;
                 default:
                     break; throw new ArgumentOutOfRangeException(nameof(comparison));
@@ -146,6 +150,7 @@ namespace CompilerKit.Emit.Ssa
             Comparison = comparison;
             Left = left;
             Right = right;
+            Ordered = left.IsSigned || right.IsSigned;
             InputVariables = new ReadOnlyCollection<Variable>(new[] { left, right });
         }
 
@@ -156,7 +161,9 @@ namespace CompilerKit.Emit.Ssa
         /// <param name="il">The <see cref="ILGenerator" /> to compile to.</param>
         public override void CompileTo(IMethodEmitRequest emitRequest, IILGenerator il)
         {
-            il.Branch(Comparison, Block, Ordered ? EmitOptions.SignedOrOrdered : EmitOptions.None);
+            if (!ReferenceEquals(Left, null)) il.Load(Left, EmitOptions.None);
+            if (!ReferenceEquals(Right, null)) il.Load(Right, EmitOptions.None);
+            il.Branch(Comparison, Destination, Ordered ? EmitOptions.SignedOrOrdered : EmitOptions.None);
         }
     }
 }

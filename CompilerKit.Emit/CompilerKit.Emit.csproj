@@ -53,6 +53,7 @@
     <Compile Include="Ssa\BranchCompareInstruction.cs" />
     <Compile Include="Ssa\Comparison.cs" />
     <Compile Include="Ssa\BranchInstruction.cs" />
+    <Compile Include="Ssa\ConstantInstruction.cs" />
     <Compile Include="Ssa\DefaultILGenerator.cs" />
     <Compile Include="Ssa\EmitOptions.cs" />
     <Compile Include="Ssa\DefaultMethodEmitRequest.cs" />

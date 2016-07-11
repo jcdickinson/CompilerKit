@@ -50,6 +50,12 @@
         void Emit(Block block);
 
         /// <summary>
+        /// Emits the specified constant value.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        void Constant(object value);
+
+        /// <summary>
         /// Emits a branch which will jump to the specified <see cref="Block" />
         /// based on the result of the specified <see cref="Comparison" />.
         /// </summary>

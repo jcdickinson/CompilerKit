@@ -298,7 +298,7 @@ namespace CompilerKit.Emit.Ssa
                 case Comparison.NotEqual:
                     if (un)
                     {
-                        IL.Emit(OpCodes.Bne_Un);
+                        IL.Emit(OpCodes.Bne_Un, label);
                     }
                     else
                     {
@@ -308,23 +308,94 @@ namespace CompilerKit.Emit.Ssa
                     }
                     break;
                 case Comparison.GreaterThan:
-                    if (un) IL.Emit(OpCodes.Bgt);
-                    else IL.Emit(OpCodes.Bgt_Un);
+                    if (un) IL.Emit(OpCodes.Bgt, label);
+                    else IL.Emit(OpCodes.Bgt_Un, label);
                     break;
                 case Comparison.GreaterThanOrEqual:
-                    if (un) IL.Emit(OpCodes.Bge);
-                    else IL.Emit(OpCodes.Bge_Un);
+                    if (un) IL.Emit(OpCodes.Bge, label);
+                    else IL.Emit(OpCodes.Bge_Un, label);
                     break;
                 case Comparison.LessThan:
-                    if (un) IL.Emit(OpCodes.Blt);
-                    else IL.Emit(OpCodes.Blt_Un);
+                    if (un) IL.Emit(OpCodes.Blt, label);
+                    else IL.Emit(OpCodes.Blt_Un, label);
                     break;
                 case Comparison.LessThanOrEqual:
-                    if (un) IL.Emit(OpCodes.Ble);
-                    else IL.Emit(OpCodes.Ble_Un);
+                    if (un) IL.Emit(OpCodes.Ble, label);
+                    else IL.Emit(OpCodes.Ble_Un, label);
                     break;
                 default: throw new NotSupportedException();
             }
+        }
+
+        public void Constant(object value)
+        {
+            if (value == null)
+            {
+                IL.Emit(OpCodes.Ldnull);
+                return;
+            }
+
+            var type = value.GetType();
+            switch (Type.GetTypeCode(type))
+            {
+                case TypeCode.Boolean: Constant((bool)value ? -1 : 0); break;
+                case TypeCode.Char: Constant((char)value); break;
+                case TypeCode.SByte: Constant((sbyte)value); break;
+                case TypeCode.Byte: Constant((byte)value); break;
+                case TypeCode.Int16: Constant((short)value); break;
+                case TypeCode.UInt16: Constant((ushort)value); break;
+                case TypeCode.Int32: Constant((int)value); break;
+                case TypeCode.UInt32: Constant(unchecked((int)(uint)value)); break;
+                case TypeCode.Int64: Constant((long)value); break;
+                case TypeCode.UInt64: Constant(unchecked((long)(ulong)value)); break;
+                case TypeCode.Single: Constant((float)value); break;
+                case TypeCode.Double: Constant((double)value); break;
+                case TypeCode.String: Constant((string)value); break;
+                default: throw new NotSupportedException($"{type} cannot be used as a constant.");
+            }
+        }
+
+        protected virtual void Constant(int value)
+        {
+            switch (value)
+            {
+                case -1: IL.Emit(OpCodes.Ldc_I4_M1); break;
+                case 0: IL.Emit(OpCodes.Ldc_I4_0); break;
+                case 1: IL.Emit(OpCodes.Ldc_I4_1); break;
+                case 2: IL.Emit(OpCodes.Ldc_I4_2); break;
+                case 3: IL.Emit(OpCodes.Ldc_I4_3); break;
+                case 4: IL.Emit(OpCodes.Ldc_I4_4); break;
+                case 5: IL.Emit(OpCodes.Ldc_I4_5); break;
+                case 6: IL.Emit(OpCodes.Ldc_I4_6); break;
+                case 7: IL.Emit(OpCodes.Ldc_I4_7); break;
+                case 8: IL.Emit(OpCodes.Ldc_I4_8); break;
+                default:
+                    if (value >= -128 && value <= 127)
+                        IL.Emit(OpCodes.Ldc_I4_S, (sbyte)value);
+                    else
+                        IL.Emit(OpCodes.Ldc_I4, value);
+                    break;
+            }
+        }
+
+        protected virtual void Constant(long value)
+        {
+            IL.Emit(OpCodes.Ldc_I8, value);
+        }
+
+        protected virtual void Constant(float value)
+        {
+            IL.Emit(OpCodes.Ldc_R4, value);
+        }
+
+        protected virtual void Constant(double value)
+        {
+            IL.Emit(OpCodes.Ldc_R8, value);
+        }
+
+        protected virtual void Constant(string value)
+        {
+            IL.Emit(OpCodes.Ldstr, value);
         }
     }
 }

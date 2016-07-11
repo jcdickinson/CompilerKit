@@ -103,27 +103,6 @@ namespace CompilerKit.Emit.Ssa
         public VariableOptions Options { get; set; }
 
         /// <summary>
-        /// Gets a value indicating whether this variable can be placed on the stack.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if this variable can be placed on the stack; otherwise, <c>false</c>.
-        /// </value>
-        public bool StoreOnStack
-        {
-            get
-            {
-                // First remove all other flags.
-                var stackOnly = Options & VariableOptions.StackOperations;
-
-                // Flip the bit that signifies prohibition.
-                var invertProhibited = Options & VariableOptions.StackProhibited;
-
-                // Now both values will be true if it is allowed.
-                return invertProhibited == VariableOptions.StackOperations;
-            }
-        }
-
-        /// <summary>
         /// Gets a value indicating whether this variable's type is integral.
         /// </summary>
         /// <value>
@@ -146,6 +125,14 @@ namespace CompilerKit.Emit.Ssa
         /// <c>true</c> if the type is signed; otherwise, <c>false</c>.
         /// </value>
         public bool IsSigned { get { return _signedTypes.Contains(Type.TypeHandle); } }
+
+        /// <summary>
+        /// Gets a value indicating whether this variable's type is a value type.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if the type is a value type; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsValueType { get { return Type.IsValueType; } }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Variable" /> class.

@@ -16,6 +16,6 @@ namespace CompilerKit.Emit.Ssa
         /// The list of destinations that the instruction
         /// may branch to.
         /// </value>
-        public abstract IReadOnlyList<Body> Destinations { get; }
+        public abstract IReadOnlyList<Block> Destinations { get; }
     }
 }

@@ -61,7 +61,7 @@ namespace CompilerKit.Emit.Ssa
         /// <param name="il">The <see cref="ILGenerator" /> to compile to.</param>
         public override void CompileTo(IMethodEmitRequest emitRequest, IILGenerator il)
         {
-            if (ReturnValue != null && !ReturnValue.StoreOnStack)
+            if (ReturnValue != null)
                 il.Load(ReturnValue, EmitOptions.None);
             il.Return();
         }

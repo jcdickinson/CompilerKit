@@ -69,6 +69,17 @@ namespace CompilerKit.Emit.Ssa
         }
 
         /// <summary>
+        /// Creates a new block in the body.
+        /// </summary>
+        /// <returns>The block.</returns>
+        public Block CreateBlock()
+        {
+            var result = new Block(this);
+            _blocks.Add(result);
+            return result;
+        }
+
+        /// <summary>
         /// Compiles the method to the specified <see cref="IMethodEmitRequest" />.
         /// </summary>
         /// <param name="emitRequest">The emit request to compile against.</param>
@@ -88,6 +99,7 @@ namespace CompilerKit.Emit.Ssa
 
             foreach (var block in _blocks)
             {
+                il.Emit(block);
                 block.CompileTo(emitRequest, il);
             }
         }
