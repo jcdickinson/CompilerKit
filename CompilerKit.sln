@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompilerKit.Emit", "Compile
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompilerKit.Emit.Tests", "CompilerKit.Emit.Tests\CompilerKit.Emit.Tests.csproj", "{86CFF51F-CF05-419C-9A4E-58E20A80A0E5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompilerKit.Core", "CompilerKit.Core\CompilerKit.Core.csproj", "{88E1F60F-EDCA-4B4F-B98A-FCD553704602}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompilerKit.Core.Tests", "CompilerKit.Core.Tests\CompilerKit.Core.Tests.csproj", "{41E260E0-255E-4116-BD9A-C7783958FA2E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{86CFF51F-CF05-419C-9A4E-58E20A80A0E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{86CFF51F-CF05-419C-9A4E-58E20A80A0E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{86CFF51F-CF05-419C-9A4E-58E20A80A0E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88E1F60F-EDCA-4B4F-B98A-FCD553704602}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88E1F60F-EDCA-4B4F-B98A-FCD553704602}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88E1F60F-EDCA-4B4F-B98A-FCD553704602}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88E1F60F-EDCA-4B4F-B98A-FCD553704602}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41E260E0-255E-4116-BD9A-C7783958FA2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41E260E0-255E-4116-BD9A-C7783958FA2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41E260E0-255E-4116-BD9A-C7783958FA2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41E260E0-255E-4116-BD9A-C7783958FA2E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -60,6 +60,7 @@
     <Compile Include="Ssa\IMethodEmitRequest.cs" />
     <Compile Include="Ssa\IILGenerator.cs" />
     <Compile Include="Ssa\ILabel.cs" />
+    <Compile Include="Ssa\PhiInstruction.cs" />
     <Compile Include="Ssa\SsaExtensions.cs" />
     <Compile Include="Ssa\Instruction.cs" />
     <Compile Include="Ssa\IRootVariableCollection.cs" />
@@ -73,6 +74,12 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CompilerKit.Core\CompilerKit.Core.csproj">
+      <Project>{88e1f60f-edca-4b4f-b98a-fcd553704602}</Project>
+      <Name>CompilerKit.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
