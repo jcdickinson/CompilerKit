@@ -86,11 +86,11 @@ namespace CompilerKit.Emit.Ssa
         /// </summary>
         /// <param name="emitRequest">The emit request to compile against.</param>
         /// <param name="il">The <see cref="IILGenerator"/> that will be populated with the final code.</param>
-        public virtual void CompileTo(IMethodEmitRequest emitRequest, IILGenerator il)
+        public virtual void CompileTo(IILGenerator il)
         {
             foreach (var instruction in this)
             {
-                instruction.CompileTo(emitRequest, il);
+                instruction.CompileTo(il);
             }
         }
 

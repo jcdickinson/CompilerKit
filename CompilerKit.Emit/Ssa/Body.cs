@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace CompilerKit.Emit.Ssa
 {
@@ -86,22 +85,7 @@ namespace CompilerKit.Emit.Ssa
         public void CompileTo(IMethodEmitRequest emitRequest)
         {
             var il = emitRequest.CreateILGenerator();
-
-            foreach (var block in _blocks)
-            {
-                il.Declare(block);
-            }
-
-            foreach (var variable in ((IEnumerable<RootVariable>)Variables).SelectMany(x => x.Variables))
-            {
-                il.Declare(variable);
-            }
-
-            foreach (var block in _blocks)
-            {
-                il.Emit(block);
-                block.CompileTo(emitRequest, il);
-            }
+            il.Emit(this);
         }
 
         /// <summary>

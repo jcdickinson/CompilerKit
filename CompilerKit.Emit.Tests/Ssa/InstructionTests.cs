@@ -23,9 +23,10 @@ namespace CompilerKit.Emit.Ssa
             body.CompileTo(request);
 
             var finalType = tb.CreateType();
+            ab.Save("CompilerKit.TestOutput.dll");
+
             var finalMethod = finalType.GetMethod(tm.Name, BindingFlags.Public | BindingFlags.Static);
 
-            //ab.Save("CompilerKit.TestOutput.dll");
             return finalMethod;
         }
         #endregion
@@ -588,6 +589,76 @@ namespace CompilerKit.Emit.Ssa
 
             actual = (string)finalMethod.Invoke(null, new object[] { 101 });
             Assert.Equal("Block 0", actual);
+        }
+        #endregion
+
+        #region PhiInstruction
+        [Fact(DisplayName = "PhiInstruction should select the correct value from 2 values")]
+        public void PhiInstruction_Binary_Compile()
+        {
+            var body = new Body();
+            var trueBranch = body.CreateBlock();
+            var falseBranch = body.CreateBlock();
+            var returnBranch = body.CreateBlock();
+
+            var val = body.Variables.Add(typeof(string), "value");
+            var param = body.Parameters.Add(typeof(bool), "branch");
+
+            var falseConstant = new ConstantInstruction(val.NextVariable(), "Block 0");
+            var trueConstant = new ConstantInstruction(val.NextVariable(), "Block 1");
+
+            body.MainBlock.Add(new BranchCompareInstruction(trueBranch, param.NextVariable(), Comparison.True));
+            trueBranch.Add(trueConstant);
+            trueBranch.Add(new BranchCompareInstruction(returnBranch));
+
+            body.MainBlock.Add(new BranchCompareInstruction(falseBranch, param.NextVariable(), Comparison.False));
+            falseBranch.Add(falseConstant);
+            falseBranch.Add(new BranchCompareInstruction(returnBranch));
+
+            var phi = new PhiInstruction(val.NextVariable(), falseConstant.Output, trueConstant.Output);
+            returnBranch.Add(phi);
+            returnBranch.Add(new ReturnInstruction(phi.Output));
+
+            var finalMethod = CompileStaticMethod(typeof(string), body);
+
+            var actual = (string)finalMethod.Invoke(null, new object[] { false });
+            Assert.Equal("Block 0", actual);
+
+            actual = (string)finalMethod.Invoke(null, new object[] { true });
+            Assert.Equal("Block 1", actual);
+        }
+
+        [Fact(DisplayName = "PhiInstruction should select the correct value from itself or another value")]
+        public void PhiInstruction_BinarySelf_Compile()
+        {
+            var body = new Body();
+            var trueBranch = body.CreateBlock();
+            var returnBranch = body.CreateBlock();
+
+            var val = body.Variables.Add(typeof(string), "value");
+            var param = body.Parameters.Add(typeof(bool), "branch");
+
+            var falseConstant = new ConstantInstruction(val.NextVariable(), "Block 0");
+            var trueConstant = new ConstantInstruction(val.NextVariable(), "Block 1");
+
+            body.MainBlock.Add(new BranchCompareInstruction(trueBranch, param.NextVariable(), Comparison.True));
+            trueBranch.Add(trueConstant);
+            trueBranch.Add(new BranchCompareInstruction(returnBranch));
+
+            body.MainBlock.Add(falseConstant);
+            body.MainBlock.Add(new BranchCompareInstruction(returnBranch));
+
+            var phi = new PhiInstruction(val.NextVariable(), falseConstant.Output, trueConstant.Output);
+            returnBranch.Add(phi);
+            returnBranch.Add(new ReturnInstruction(phi.Output));
+
+            var finalMethod = CompileStaticMethod(typeof(string), body);
+
+            var actual = (string)finalMethod.Invoke(null, new object[] { false });
+            Assert.Equal("Block 0", actual);
+
+            actual = (string)finalMethod.Invoke(null, new object[] { true });
+            Assert.Equal("Block 1", actual);
         }
         #endregion
     }

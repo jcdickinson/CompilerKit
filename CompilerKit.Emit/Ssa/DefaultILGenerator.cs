@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection.Emit;
+using CompilerKit.Collections.Generic;
 
 namespace CompilerKit.Emit.Ssa
 {
     /// <summary>
-    /// Represents a <see cref="IILGenerator"/> that emits to a
-    /// <see cref="ILGenerator"/>.
+    /// Represents a <see cref="IILGenerator" /> that emits to a
+    /// <see cref="ILGenerator" />.
     /// </summary>
     public class DefaultILGenerator : IILGenerator
     {
@@ -37,22 +39,37 @@ namespace CompilerKit.Emit.Ssa
         /// </value>
         protected ILGenerator IL { get; }
 
+        /// <summary>
+        /// Gets the <see cref="IMethodEmitRequest"/> that created this <see cref="IILGenerator"/>.
+        /// </summary>
+        /// <value>
+        /// The <see cref="IMethodEmitRequest"/> that created this <see cref="IILGenerator"/>.
+        /// </value>
+        public IMethodEmitRequest MethodEmitRequest { get; }
+
         private readonly Dictionary<Variable, LocalBuilder> _variables;
         private readonly Dictionary<Block, Label> _blocks;
+        private readonly Dictionary<Variable, HashSet<Variable>> _variableTargets;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultILGenerator" /> class.
         /// </summary>
-        /// <param name="il">The <see cref="ILGenerator"/>.</param>
-        public DefaultILGenerator(ILGenerator il)
+        /// <param name="methodEmitRequest">The method emit request.</param>
+        /// <param name="il">The <see cref="ILGenerator" />.</param>
+        /// <exception cref="System.ArgumentNullException"></exception>
+        public DefaultILGenerator(IMethodEmitRequest methodEmitRequest, ILGenerator il)
         {
             if (il == null) throw new ArgumentNullException(nameof(il));
+            if (methodEmitRequest == null) throw new ArgumentNullException(nameof(methodEmitRequest));
+
             IL = il;
             _variables = new Dictionary<Variable, LocalBuilder>();
             _blocks = new Dictionary<Block, Label>();
+            _variableTargets = new Dictionary<Variable, HashSet<Variable>>();
 
             Variables = new ReadOnlyDictionary<Variable, LocalBuilder>(_variables);
             Blocks = new ReadOnlyDictionary<Block, Label>(_blocks);
+            MethodEmitRequest = methodEmitRequest;
         }
 
         /// <summary>
@@ -174,6 +191,15 @@ namespace CompilerKit.Emit.Ssa
         {
             if (variable == null) throw new ArgumentNullException(nameof(variable));
 
+            HashSet<Variable> replacement;
+            if (_variableTargets.TryGetValue(variable, out replacement))
+            {
+                if (replacement.Count > 1)
+                    throw new NotSupportedException();
+                else if (replacement.Count == 1)
+                    variable = replacement.FirstOrDefault();
+            }
+
             LocalBuilder local;
             int index;
             if (_variables.TryGetValue(variable, out local))
@@ -238,6 +264,15 @@ namespace CompilerKit.Emit.Ssa
         public virtual void Store(Variable variable, EmitOptions options)
         {
             if (variable == null) throw new ArgumentNullException(nameof(variable));
+
+            HashSet<Variable> replacement;
+            if (_variableTargets.TryGetValue(variable, out replacement))
+            {
+                if (replacement.Count > 1)
+                    throw new NotSupportedException();
+                else if (replacement.Count == 1)
+                    variable = replacement.FirstOrDefault();
+            }
 
             LocalBuilder local;
             int index;
@@ -396,6 +431,62 @@ namespace CompilerKit.Emit.Ssa
         protected virtual void Constant(string value)
         {
             IL.Emit(OpCodes.Ldstr, value);
+        }
+
+        public void Emit(Body body)
+        {
+            foreach (var variable in ((IEnumerable<RootVariable>)body.Variables).SelectMany(x => x.Variables))
+            {
+                Declare(variable);
+            }
+
+            foreach (var block in body)
+            {
+                Declare(block);
+            }
+
+            var graph = new DependencyGraph<Variable>();
+            foreach (var phi in body.SelectMany(x => x).OfType<PhiInstruction>())
+                graph.Add(phi.Output, phi.InputVariables);
+
+            var list = graph.ResolveDependencies().ToList();
+
+            // Key = Variable
+            // Value = Variables that Key Should Assign To
+            _variableTargets.Clear();
+            for (var i = list.Count - 1; i >= 0; i--)
+            {
+                var cycle = list[i];
+                var firstInCycle = cycle[0];
+
+                for (var j = 0; j < cycle.Count; j++)
+                {
+                    var cycleNode = cycle[j];
+
+                    foreach (var dep in graph.GetDependencies(cycleNode))
+                    {
+                        var sources = GetOrAdd(_variableTargets, dep);
+                        sources.Add(firstInCycle);
+                    }
+
+                    if (j != 0) GetOrAdd(_variableTargets, cycleNode).Add(firstInCycle);
+                }
+            }
+
+            foreach (var block in body)
+            {
+                Emit(block);
+                block.CompileTo(this);
+            }
+        }
+
+        private static V GetOrAdd<T, V>(Dictionary<T, V> dictionary, T key)
+            where V : new()
+        {
+            V result;
+            if (!dictionary.TryGetValue(key, out result))
+                dictionary.Add(key, result = new V());
+            return result;
         }
     }
 }

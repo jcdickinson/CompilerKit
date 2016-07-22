@@ -35,8 +35,8 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Collections\Generic\DependencyTree.cs" />
-    <Compile Include="Collections\Generic\IDependencyTree.cs" />
+    <Compile Include="Collections\Generic\DependencyGraph.cs" />
+    <Compile Include="Collections\Generic\IDependencyGraph.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

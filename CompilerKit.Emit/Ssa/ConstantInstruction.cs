@@ -65,7 +65,7 @@ namespace CompilerKit.Emit.Ssa
             OutputVariables = new ReadOnlyCollection<Variable>(Variable.EmptyVariables);
         }
 
-        public override void CompileTo(IMethodEmitRequest emitRequest, IILGenerator il)
+        public override void CompileTo(IILGenerator il)
         {
             if (ReferenceEquals(Value, null))
             {

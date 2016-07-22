@@ -6,7 +6,7 @@ using Xunit.Sdk;
 
 namespace CompilerKit.Collections.Generic
 {
-    public class DependencyTreeTests
+    public class DependencyGraphTests
     {
         private void AssertScc(IEnumerable<IReadOnlyList<char>> actual, params string[] expected)
         {
@@ -55,14 +55,14 @@ namespace CompilerKit.Collections.Generic
             }
         }
 
-        [Fact(DisplayName = "DependencyTree ResolveMembers should pass scenario 1.")]
-        public void DependencyTree_ResolveDependencies_Scenario1()
+        [Fact(DisplayName = "DependencyGraph ResolveMembers should pass scenario 1.")]
+        public void DependencyGraph_ResolveDependencies_Scenario1()
         {
             // A
             // ! \
             // B - C
 
-            var dt = new DependencyTree<char>();
+            var dt = new DependencyGraph<char>();
             dt.Add('A', "B");
             dt.Add('B', "C");
             dt.Add('C', "A");
@@ -70,14 +70,14 @@ namespace CompilerKit.Collections.Generic
             AssertScc(dt.ResolveDependencies(), "ABC");
         }
 
-        [Fact(DisplayName = "DependencyTree ResolveMembers should pass scenario 2.")]
-        public void DependencyTree_ResolveDependencies_Scenario2()
+        [Fact(DisplayName = "DependencyGraph ResolveMembers should pass scenario 2.")]
+        public void DependencyGraph_ResolveDependencies_Scenario2()
         {
             // A
             // ! \
             // B - C <- D
 
-            var dt = new DependencyTree<char>();
+            var dt = new DependencyGraph<char>();
             dt.Add('A', "B");
             dt.Add('B', "C");
             dt.Add('C', "A");
@@ -86,14 +86,14 @@ namespace CompilerKit.Collections.Generic
             AssertScc(dt.ResolveDependencies(), "D", "ABC");
         }
 
-        [Fact(DisplayName = "DependencyTree ResolveMembers should pass scenario 3.")]
-        public void DependencyTree_ResolveDependencies_Scenario3()
+        [Fact(DisplayName = "DependencyGraph ResolveMembers should pass scenario 3.")]
+        public void DependencyGraph_ResolveDependencies_Scenario3()
         {
             // A
             // ! \
             // B - C <- D    E <- F
 
-            var dt = new DependencyTree<char>();
+            var dt = new DependencyGraph<char>();
             dt.Add('A', "B");
             dt.Add('B', "C");
             dt.Add('C', "A");
@@ -103,14 +103,14 @@ namespace CompilerKit.Collections.Generic
             AssertScc(dt.ResolveDependencies(), "F", "E", "D", "ABC");
         }
 
-        [Fact(DisplayName = "DependencyTree ResolveMembers should pass scenario 4.")]
-        public void DependencyTree_ResolveDependencies_Scenario4()
+        [Fact(DisplayName = "DependencyGraph ResolveMembers should pass scenario 4.")]
+        public void DependencyGraph_ResolveDependencies_Scenario4()
         {
             // A
             // ! \
             // B - C <- D <- E <- F
 
-            var dt = new DependencyTree<char>();
+            var dt = new DependencyGraph<char>();
             dt.Add('A', "B");
             dt.Add('B', "C");
             dt.Add('C', "A");
@@ -121,14 +121,14 @@ namespace CompilerKit.Collections.Generic
             AssertScc(dt.ResolveDependencies(), "F", "E", "D", "ABC");
         }
 
-        [Fact(DisplayName = "DependencyTree ResolveMembers should pass scenario 5.")]
-        public void DependencyTree_ResolveDependencies_Scenario5()
+        [Fact(DisplayName = "DependencyGraph ResolveMembers should pass scenario 5.")]
+        public void DependencyGraph_ResolveDependencies_Scenario5()
         {
             // A              ___
             // ! \           /   \.
             // B - C <- D <- E <- F
 
-            var dt = new DependencyTree<char>();
+            var dt = new DependencyGraph<char>();
             dt.Add('A', "B");
             dt.Add('B', "C");
             dt.Add('C', "A");
@@ -139,8 +139,8 @@ namespace CompilerKit.Collections.Generic
             AssertScc(dt.ResolveDependencies(), "EF", "D", "ABC");
         }
 
-        [Fact(DisplayName = "DependencyTree ResolveMembers should pass scenario 6.")]
-        public void DependencyTree_ResolveDependencies_Scenario6()
+        [Fact(DisplayName = "DependencyGraph ResolveMembers should pass scenario 6.")]
+        public void DependencyGraph_ResolveDependencies_Scenario6()
         {
             // A
             // ! \           /---\.
@@ -148,7 +148,7 @@ namespace CompilerKit.Collections.Generic
             //          ^\
             //            G
 
-            var dt = new DependencyTree<char>();
+            var dt = new DependencyGraph<char>();
             dt.Add('A', "B");
             dt.Add('B', "C");
             dt.Add('C', "A");
@@ -159,8 +159,8 @@ namespace CompilerKit.Collections.Generic
             AssertScc(dt.ResolveDependencies(), "EF", "D", "G", "ABC");
         }
 
-        [Fact(DisplayName = "DependencyTree ResolveMembers should pass scenario 7.")]
-        public void DependencyTree_ResolveDependencies_Scenario7()
+        [Fact(DisplayName = "DependencyGraph ResolveMembers should pass scenario 7.")]
+        public void DependencyGraph_ResolveDependencies_Scenario7()
         {
             // A
             // ! \           /---\.
@@ -168,7 +168,7 @@ namespace CompilerKit.Collections.Generic
             //          ^\ /^
             //            G
 
-            var dt = new DependencyTree<char>();
+            var dt = new DependencyGraph<char>();
             dt.Add('A', "B");
             dt.Add('B', "C");
             dt.Add('C', "A");
@@ -180,8 +180,8 @@ namespace CompilerKit.Collections.Generic
             AssertScc(dt.ResolveDependencies(), "G", "EF", "D", "ABC");
         }
 
-        [Fact(DisplayName = "DependencyTree ResolveMembers should pass scenario 8.")]
-        public void DependencyTree_ResolveDependencies_Scenario8()
+        [Fact(DisplayName = "DependencyGraph ResolveMembers should pass scenario 8.")]
+        public void DependencyGraph_ResolveDependencies_Scenario8()
         {
             // A
             // ! \           /---\.
@@ -189,7 +189,7 @@ namespace CompilerKit.Collections.Generic
             //          ^\ ./
             //            G
 
-            var dt = new DependencyTree<char>();
+            var dt = new DependencyGraph<char>();
             dt.Add('A', "B");
             dt.Add('B', "C");
             dt.Add('C', "A");
@@ -201,8 +201,8 @@ namespace CompilerKit.Collections.Generic
             AssertScc(dt.ResolveDependencies(), "EF", "G", "D", "ABC");
         }
 
-        [Fact(DisplayName = "DependencyTree ResolveMembers should pass scenario 9.")]
-        public void DependencyTree_ResolveDependencies_Scenario9()
+        [Fact(DisplayName = "DependencyGraph ResolveMembers should pass scenario 9.")]
+        public void DependencyGraph_ResolveDependencies_Scenario9()
         {
             // A
             // ! \           /---\.
@@ -210,7 +210,7 @@ namespace CompilerKit.Collections.Generic
             //     ^\ ./
             //       G
 
-            var dt = new DependencyTree<char>();
+            var dt = new DependencyGraph<char>();
             dt.Add('A', "B");
             dt.Add('B', "C");
             dt.Add('C', "A");

@@ -6,16 +6,12 @@
     public interface IILGenerator
     {
         /// <summary>
-        /// Emits the start of the specified body.
+        /// Gets the <see cref="IMethodEmitRequest"/> that created this <see cref="IILGenerator"/>.
         /// </summary>
-        /// <param name="block">The block to declare.</param>
-        void Declare(Block block);
-
-        /// <summary>
-        /// Emits a declaration of the specified variable.
-        /// </summary>
-        /// <param name="variable">The variable to declare.</param>
-        void Declare(Variable variable);
+        /// <value>
+        /// The <see cref="IMethodEmitRequest"/> that created this <see cref="IILGenerator"/>.
+        /// </value>
+        IMethodEmitRequest MethodEmitRequest { get; }
 
         /// <summary>
         /// Emits an instruction that loads a stack value from the specified <see cref="Variable"/>.
@@ -44,10 +40,10 @@
         void Binary(BinaryOperator binaryOperator, EmitOptions options);
 
         /// <summary>
-        /// Emits the preamble for the specified block.
+        /// Emits the the specified body.
         /// </summary>
-        /// <param name="block">The block to emit.</param>
-        void Emit(Block block);
+        /// <param name="body">The body to emit.</param>
+        void Emit(Body body);
 
         /// <summary>
         /// Emits the specified constant value.

@@ -6,10 +6,10 @@ using System.Linq;
 namespace CompilerKit.Collections.Generic
 {
     /// <summary>
-    /// Represents a dependency tree.
+    /// Represents a dependency graph.
     /// </summary>
-    /// <typeparam name="T">The type of dependency node.</typeparam>
-    public sealed class DependencyTree<T> : IDependencyTree<T>
+    /// <typeparam name="T">The type of the node in the dependency graph.</typeparam>
+    public sealed class DependencyGraph<T> : IDependencyGraph<T>
     {
         private sealed class Box<TBoxed>
         {
@@ -64,21 +64,26 @@ namespace CompilerKit.Collections.Generic
         private readonly IEqualityComparer<T> _equalityComparer;
         private readonly Dictionary<T, Node> _nodes;
 
-        // Guarantee that the first node is at the top of the topological sort.
-        private Node _firstNode;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DependencyGraph{T}"/> class.
+        /// </summary>
+        public DependencyGraph() : this(EqualityComparer<T>.Default) { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DependencyTree{T}"/> class.
+        /// Initializes a new instance of the <see cref="DependencyGraph{T}"/> class.
         /// </summary>
-        public DependencyTree() : this(EqualityComparer<T>.Default) { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DependencyTree{T}"/> class.
-        /// </summary>
-        public DependencyTree(IEqualityComparer<T> equalityComparer)
+        public DependencyGraph(IEqualityComparer<T> equalityComparer)
         {
             _equalityComparer = equalityComparer ?? EqualityComparer<T>.Default;
             _nodes = new Dictionary<T, Node>(_equalityComparer);
+        }
+
+        private Node GetNode(T value)
+        {
+            Node node;
+            if (!_nodes.TryGetValue(value, out node))
+                _nodes.Add(value, node = new Node(value, _equalityComparer));
+            return node;
         }
 
         /// <summary>
@@ -90,27 +95,70 @@ namespace CompilerKit.Collections.Generic
         {
             lock (_nodes)
             {
-                Node dependantNode;
-                if (!_nodes.TryGetValue(node, out dependantNode))
-                    _nodes.Add(node, dependantNode = new Node(node, _equalityComparer));
-
-                if (_firstNode == null) _firstNode = dependantNode;
+                var dependantNode = GetNode(node);
 
                 foreach (var dependency in dependencies)
                 {
-                    Node dependencyNode;
-                    if (!_nodes.TryGetValue(dependency, out dependencyNode))
-                        _nodes.Add(dependency, dependencyNode = new Node(dependency, _equalityComparer));
-
-                    dependantNode.Dependencies.Add(dependencyNode);
+                    dependantNode.Dependencies.Add(GetNode(dependency));
                 }
             }
         }
 
         /// <summary>
-        /// Resolves the cyclic dependencies in the tree.
+        /// Adds a new dependency.
         /// </summary>
-        /// <returns>The reverse-topographically sorted strongly connected components in the tree.</returns>
+        /// <param name="nodes">The nodes.</param>
+        /// <param name="dependencies">The dependency.</param>
+        public void Add(IEnumerable<T> nodes, T dependency)
+        {
+            lock (_nodes)
+            {
+                var dependencyNode = GetNode(dependency);
+
+                foreach (var node in nodes)
+                {
+                    GetNode(node).Dependencies.Add(dependencyNode);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Adds a new dependency.
+        /// </summary>
+        /// <param name="nodes">The nodes.</param>
+        /// <param name="dependencies">The dependencies.</param>
+        public void Add(IEnumerable<T> nodes, IEnumerable<T> dependencies)
+        {
+            lock (_nodes)
+            {
+                foreach (var node in nodes)
+                {
+                    var dependantNode = GetNode(node);
+
+                    foreach (var dependency in dependencies)
+                    {
+                        dependantNode.Dependencies.Add(GetNode(dependency));
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the dependencies of a node.
+        /// </summary>
+        /// <param name="node">The node.</param>
+        /// <returns>The list of the node dependencies.</returns>
+        public IEnumerable<T> GetDependencies(T node)
+        {
+            var deps = _nodes[node].Dependencies;
+            if (deps.Count == 0) return Enumerable.Empty<T>();
+            return deps.Select(x => x.Dependant);
+        }
+
+        /// <summary>
+        /// Resolves the cyclic dependencies in the graph.
+        /// </summary>
+        /// <returns>The reverse-topographically sorted strongly connected components in the graph.</returns>
         public IEnumerable<IReadOnlyList<T>> ResolveDependencies()
         {
             lock (_nodes)

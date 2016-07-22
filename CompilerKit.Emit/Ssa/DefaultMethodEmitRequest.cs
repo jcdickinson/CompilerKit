@@ -34,11 +34,22 @@ namespace CompilerKit.Emit.Ssa
         /// <returns>
         /// The <see cref="IILGenerator" /> generator for the current method.
         /// </returns>
-        public virtual IILGenerator CreateILGenerator()
+        public IILGenerator CreateILGenerator()
         {
             if (_ilGenerator == null)
-                _ilGenerator = new DefaultILGenerator(MethodBuilder.GetILGenerator());
+                _ilGenerator = CreateNewILGenerator();
             return _ilGenerator;
+        }
+
+        /// <summary>
+        /// Creates the <see cref="IILGenerator" /> generator for the current method.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="IILGenerator" /> generator for the current method.
+        /// </returns>
+        protected virtual DefaultILGenerator CreateNewILGenerator()
+        {
+            return new DefaultILGenerator(this, MethodBuilder.GetILGenerator());
         }
     }
 }

@@ -157,9 +157,9 @@ namespace CompilerKit.Emit.Ssa
         /// <summary>
         /// Compiles the method to the specified <see cref="ILGenerator" />.
         /// </summary>
-        /// <param name="emitRequest">The emit request.</param>
         /// <param name="il">The <see cref="ILGenerator" /> to compile to.</param>
-        public override void CompileTo(IMethodEmitRequest emitRequest, IILGenerator il)
+        /// 
+        public override void CompileTo(IILGenerator il)
         {
             if (!ReferenceEquals(Left, null)) il.Load(Left, EmitOptions.None);
             if (!ReferenceEquals(Right, null)) il.Load(Right, EmitOptions.None);

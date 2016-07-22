@@ -66,8 +66,8 @@ namespace CompilerKit.Emit.Ssa
         /// <summary>
         /// Compiles the method to the specified <see cref="ILGenerator" />.
         /// </summary>
-        /// <param name="emitRequest">The emit request.</param>
         /// <param name="il">The <see cref="ILGenerator" /> to compile to.</param>
-        public abstract void CompileTo(IMethodEmitRequest emitRequest, IILGenerator il);
+        /// 
+        public abstract void CompileTo(IILGenerator il);
     }
 }
