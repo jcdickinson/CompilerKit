@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection.Emit;
 using CompilerKit.Collections.Generic;
+using System.Reflection;
 
 namespace CompilerKit.Emit.Ssa
 {
@@ -263,7 +264,11 @@ namespace CompilerKit.Emit.Ssa
         /// <param name="options">The options that describe how the <see cref="Variable" /> should be stored.</param>
         public virtual void Store(Variable variable, EmitOptions options)
         {
-            if (variable == null) throw new ArgumentNullException(nameof(variable));
+            if (variable == null)
+            {
+                IL.Emit(OpCodes.Pop);
+                return;
+            }
 
             HashSet<Variable> replacement;
             if (_variableTargets.TryGetValue(variable, out replacement))
@@ -362,6 +367,18 @@ namespace CompilerKit.Emit.Ssa
             }
         }
 
+        public void Call(MethodInfo method)
+        {
+            if (method.IsStatic)
+                IL.Emit(OpCodes.Call, method);
+            else if (method.IsVirtual)
+                IL.Emit(OpCodes.Callvirt, method);
+            else if (method.DeclaringType.IsInterface)
+                IL.Emit(OpCodes.Calli, method);
+            else
+                IL.Emit(OpCodes.Call, method);
+        }
+
         public void Constant(object value)
         {
             if (value == null)
@@ -373,7 +390,7 @@ namespace CompilerKit.Emit.Ssa
             var type = value.GetType();
             switch (Type.GetTypeCode(type))
             {
-                case TypeCode.Boolean: Constant((bool)value ? -1 : 0); break;
+                case TypeCode.Boolean: Constant((bool)value ? 1 : 0); break;
                 case TypeCode.Char: Constant((char)value); break;
                 case TypeCode.SByte: Constant((sbyte)value); break;
                 case TypeCode.Byte: Constant((byte)value); break;

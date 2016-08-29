@@ -158,7 +158,8 @@ namespace CompilerKit.Emit.Ssa
         {
             var ln = ReferenceEquals(left, null);
             var rn = ReferenceEquals(right, null);
-            if ((ln ^ rn) | ln) return false;
+            if (ln != rn) return false;
+            if (ln == true && rn == true) return true;
             return left.Equals(right);
         }
 
@@ -174,7 +175,8 @@ namespace CompilerKit.Emit.Ssa
         {
             var ln = ReferenceEquals(left, null);
             var rn = ReferenceEquals(right, null);
-            if ((ln ^ rn) | ln) return true;
+            if (ln != rn) return true;
+            if (ln == true && rn == true) return false;
             return !left.Equals(right);
         }
 

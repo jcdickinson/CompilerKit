@@ -60,6 +60,7 @@
     <Compile Include="Ssa\IMethodEmitRequest.cs" />
     <Compile Include="Ssa\IILGenerator.cs" />
     <Compile Include="Ssa\ILabel.cs" />
+    <Compile Include="Ssa\CallInstruction.cs" />
     <Compile Include="Ssa\PhiInstruction.cs" />
     <Compile Include="Ssa\SsaExtensions.cs" />
     <Compile Include="Ssa\Instruction.cs" />

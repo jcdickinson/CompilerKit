@@ -8,7 +8,7 @@
     <ProjectGuid>{86CFF51F-CF05-419C-9A4E-58E20A80A0E5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CompilerKit.Emit.Tests</RootNamespace>
+    <RootNamespace>CompilerKit.Emit</RootNamespace>
     <AssemblyName>CompilerKit.Emit.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Sentinel.cs" />
     <Compile Include="Ssa\InstructionTests.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -661,5 +661,27 @@ namespace CompilerKit.Emit.Ssa
             Assert.Equal("Block 1", actual);
         }
         #endregion
+
+        #region CallInstruction
+        [Fact(DisplayName = "CallInstruction should invoke the method")]
+        public void CallInstruction_StaticSentinel_Compile()
+        {
+            var body = new Body();
+            var param = body.Parameters.Add(Sentinel<bool>.Type, "sentinel").NextVariable();
+            var tru = body.MainBlock.Variables.Add(typeof(bool), "true").NextVariable();
+
+            body.MainBlock.Add(new ConstantInstruction(tru, true));
+            body.MainBlock.Add(new CallInstruction(param, Sentinel<bool>.SetValueMethod, null, tru));
+            body.MainBlock.Add(new ReturnInstruction());
+
+            var finalMethod = CompileStaticMethod(typeof(void), body);
+
+            var sentinel = new Sentinel<bool>();
+            finalMethod.Invoke(null, new object[] { sentinel });
+            Assert.True(sentinel.Value);
+
+        }
+        #endregion
+
     }
 }

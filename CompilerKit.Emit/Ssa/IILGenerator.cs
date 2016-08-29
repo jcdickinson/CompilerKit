@@ -1,4 +1,6 @@
-﻿namespace CompilerKit.Emit.Ssa
+﻿using System.Reflection;
+
+namespace CompilerKit.Emit.Ssa
 {
     /// <summary>
     /// Represents an IL generator.
@@ -59,5 +61,7 @@
         /// <param name="block">The block to jump to.</param>
         /// <param name="options">The options that describe how the comparison should behave.</param>
         void Branch(Comparison comparison, Block block, EmitOptions options);
+
+        void Call(MethodInfo methodInfo);
     }
 }
