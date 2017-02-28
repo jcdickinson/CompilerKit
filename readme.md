@@ -1,6 +1,6 @@
 ## CompilerKit
 
-Compiler framework for C# and .Net in general.
+Compiler framework for C# and .Net in general. [The Goal](https://twitter.com/jcdickinson/status/690461993078251520)
 
 ### Getting started
 
