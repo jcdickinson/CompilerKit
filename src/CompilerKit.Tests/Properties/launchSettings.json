@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "CompilerKit.Tests": {
+      "commandName": "Executable",
+      "executablePath": "bin\\Debug\\netcoreapp1.1\\xunit.console.exe",
+      "commandLineArgs": "bin\\Debug\\netcoreapp1.1\\CompilerKit.Tests.dll"
+    }
+  }
+}
